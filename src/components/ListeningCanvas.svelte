@@ -1,0 +1,118 @@
+<script lang="ts">
+    import { onMount } from 'svelte';
+    import { Action } from '../model/action';
+import { canvasSize, listeningScale } from '../model/canvasDimensions';
+    import type { DrawEvent } from '../model/drawEvent';
+    import { EventType } from '../model/event';
+    import type { SocketDao } from '../socketDao';
+
+    const scale = 2;
+    
+    export let dao: SocketDao;
+    export let clientId: String;
+
+    let canvas: HTMLCanvasElement;
+
+    onMount(() => {
+        let latestPoint: [number, number];
+        let drawing = false;
+
+        const context = canvas.getContext("2d");
+
+        const continueStroke = (event: DrawEvent) => {
+            context.beginPath();
+            context.moveTo(latestPoint[0] / listeningScale,
+                latestPoint[1] / listeningScale);
+            context.strokeStyle = event.metaData.colour;
+            context.lineWidth = event.metaData.thickness / scale;
+            context.lineCap = "round";
+            context.lineJoin = "round";
+            context.lineTo(event.metaData.x / listeningScale, 
+                event.metaData.y / listeningScale);
+            context.stroke();
+
+            latestPoint = [event.metaData.x, event.metaData.y];
+        };
+
+        const startStroke = (point: [number, number]) => {
+            drawing = true;
+            latestPoint = point;
+        };
+
+        const mouseMove = (evt: DrawEvent) => {
+            if (!drawing) {
+                return;
+            }
+            continueStroke(evt);
+        };
+
+        const mouseDown = (evt: DrawEvent) => {
+            if (drawing) {
+                return;
+            }
+            startStroke([evt.metaData.x, evt.metaData.y]);
+        };
+
+        const mouseEnter = (evt: DrawEvent) => {
+            mouseDown(evt);
+        };
+
+        const endStroke = (evt: DrawEvent) => {
+            if (!drawing) {
+                return;
+            }
+            drawing = false;
+        };
+
+        const clearFunction = () => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        dao.onMessage(event => {
+            const drawEvent = event.data;
+
+            console.log("Listening client = " + clientId);
+            console.log("Client = " + event.clientId);
+
+            if (event.clientId != clientId
+                || event.eventType != EventType.DRAW) {
+                    return;
+            }
+
+            switch (drawEvent.action){
+                case Action.CLEAR:
+                    clearFunction();
+                    break;
+                case Action.MOUSE_DOWN:
+                    mouseDown(drawEvent);
+                    break;
+                case Action.MOUSE_ENTER:
+                    mouseEnter(drawEvent);
+                    break;
+                case Action.MOUSE_EXIT:
+                    endStroke(drawEvent);
+                    break;
+                case Action.MOUSE_MOVE:
+                    mouseMove(drawEvent);
+                    break;
+                case Action.MOUSE_UP:
+                    endStroke(drawEvent);
+                    break;
+            }
+        });
+    });
+</script>
+
+<main>
+    <canvas
+        bind:this={canvas}
+        width={canvasSize / listeningScale}
+        height={canvasSize / listeningScale}>
+    </canvas>    
+</main>
+
+<style>
+    canvas {
+        border: solid;
+    }
+</style>
