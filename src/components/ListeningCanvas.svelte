@@ -1,15 +1,16 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { Action } from '../model/action';
-import { canvasSize, listeningScale } from '../model/canvasDimensions';
+    import { canvasSize, listeningScale } from '../model/canvasDimensions';
     import type { DrawEvent } from '../model/drawEvent';
-    import { EventType } from '../model/event';
-    import type { SocketDao } from '../socketDao';
+    import { EventType } from '../model/eventType';
+    import type { Player } from '../model/player';
+    import type { SocketDao } from '../logic/socketDao';
 
     const scale = 2;
     
     export let dao: SocketDao;
-    export let clientId: String;
+    export let player: Player;
 
     let canvas: HTMLCanvasElement;
 
@@ -71,10 +72,7 @@ import { canvasSize, listeningScale } from '../model/canvasDimensions';
         dao.onMessage(event => {
             const drawEvent = event.data;
 
-            console.log("Listening client = " + clientId);
-            console.log("Client = " + event.clientId);
-
-            if (event.clientId != clientId
+            if (event.player.clientId != player.clientId
                 || event.eventType != EventType.DRAW) {
                     return;
             }
@@ -104,6 +102,7 @@ import { canvasSize, listeningScale } from '../model/canvasDimensions';
 </script>
 
 <main>
+    <h4>{player.nickName}</h4>
     <canvas
         bind:this={canvas}
         width={canvasSize / listeningScale}

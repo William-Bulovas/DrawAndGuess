@@ -1,12 +1,13 @@
-import type { DrawEvent } from './model/drawEvent';
-import type { GameEvent } from './model/event';
-import { EventType } from './model/gameEvent';
+import type { DrawEvent } from '../model/drawEvent';
+import type { GameEvent } from '../model/gameEvent';
+import { EventType } from "../model/eventType";
+import type { Player } from '../model/player';
 
 export class SocketDao {
     private socket: WebSocket;
 
     constructor(
-        private clientId: String,
+        private player: Player,
         private gameId: String
     ) {}
 
@@ -19,7 +20,14 @@ export class SocketDao {
         this.socket.send(JSON.stringify({
             eventType: EventType.JOIN,
             gameId: this.gameId,
-            clientId: this.clientId,
+            player: this.player,
+        }));
+    }
+
+    startGame(): void {
+        this.socket.send(JSON.stringify({
+            eventType: EventType.ROUND_START,
+            gameId: this.gameId
         }));
     }
     
@@ -27,7 +35,7 @@ export class SocketDao {
         this.socket.send(JSON.stringify({
             eventType: EventType.DRAW,
             gameId: this.gameId,
-            clientId: this.clientId,
+            player: this.player,
             data: drawEvent
         }));
     }

@@ -3,12 +3,13 @@ import compression from 'compression';
 import * as sapper from '@sapper/server';
 import express from 'express';
 import expressWebSocket from 'express-ws';
-import type { ConnectionMetaData } from './model/connectionMetaData';
-import { EventType, GameEvent } from './model/event';
+import type { GameEvent } from './model/gameEvent';
+import { EventType } from "./model/eventType";
 import * as WebSocket from 'ws';
 import * as http from 'http';
+import { ConnectionDataStoreDao } from './logic/connectionDataStoreDao';
 
-const activeConnections = new Map<String, ConnectionMetaData>();
+const gameDao = new ConnectionDataStoreDao();
 
 const app = expressWebSocket(express()).app;
 const server = http.createServer(app);
@@ -30,40 +31,14 @@ wss.on('connection', (ws, req) => {
 		console.log(rawEvent.data.toString());
 		switch(event.eventType) {
 			case EventType.JOIN:
-				console.log('Joining game!');
-				let defaultEventType: ConnectionMetaData = {
-					gameId: event.gameId,
-					users: []
-				};
-				if (activeConnections.has(event.gameId)) {
-					defaultEventType = activeConnections.get(event.gameId);
-				}
-
-				defaultEventType.users.forEach((user) => {
-					console.log("sending join event");
-					user.connection.send(JSON.stringify(event));
-					ws.send(JSON.stringify({
-						eventType: EventType.JOIN,
-						gameId: event.gameId,
-						clientId: user.userId
-					}));
-				});
-
-				
-
-				defaultEventType.users.push({
-					userId: event.clientId,
-					connection: ws
-				});
-
-				activeConnections.set(event.gameId, defaultEventType);
-
+				gameDao.addUserToGame(event.gameId, event.player, ws);
 				break;
 			case EventType.DRAW:
-				activeConnections.get(event.gameId).users.forEach((user) => {
-					user.connection.send(JSON.stringify(event));
-				});
-				break;        
+				gameDao.broadcastEvent(event);
+				break;     
+			case EventType.ROUND_START:
+				gameDao.startRound(event.gameId);
+				break;
 		}
 	};
 

@@ -1,50 +1,100 @@
 <script lang="ts">
-    import { SocketDao } from "../../socketDao";
-    import { v4 as uuidv4 } from 'uuid';
-    import DrawingCanvas from "../../components/DrawingCanvas.svelte";
-    import ListeningCanvas from "../../components/ListeningCanvas.svelte";
-    import { onMount } from "svelte";
-    import { EventType } from "../../model/event";
+import { SocketDao } from "../../logic/socketDao";
+import { v4 as uuidv4 } from 'uuid';
+import DrawingCanvas from "../../components/DrawingCanvas.svelte";
+import ListeningCanvas from "../../components/ListeningCanvas.svelte";
+import { onMount } from "svelte";
+import { EventType } from "../../model/eventType";
+import type { PlayerScore } from "../../model/playerScore";
+import PlayersSideBar from "../../components/PlayersSideBar.svelte";
+import Game from "../../components/Game.svelte";
+import { GameState } from "../../model/gameState";
 
-    const clientId = uuidv4();
+const clientId = uuidv4();
 
-    let dao: SocketDao = null;
-    let gameId: String;
-    
-    let clients: String[] = [];
+let joined = false;
+let started = false;
 
-	export async function preload({ params }) {
-        const gameId = params.gameId;
-        return { gameId };
+let dao: SocketDao = null;
+let gameId: String;
+
+let nickName =  '';
+let topic: String = '';
+
+let currentPlayer: PlayerScore = {
+        player: {
+            clientId: clientId,
+            nickName: nickName
+        },
+        score: 0
+};
+
+let players: PlayerScore[] = [];
+
+export async function preload({ params }) {
+    const gameId = params.gameId;
+    return { gameId };
+};
+
+const joinGame = () => {
+    console.log(nickName);
+    currentPlayer = {
+        player: {
+            clientId: clientId,
+            nickName: nickName
+        },
+        score: 0
     };
-    
-    onMount(() => {
-        dao = new SocketDao(clientId, gameId);
 
-        dao.connect(() => {
-            dao.joinGame()
+    dao = new SocketDao(currentPlayer.player, gameId);
+    dao.connect(() => {
+        dao.joinGame()
 
-            dao.onMessage(event => {
-                if (event.eventType == EventType.JOIN) {
+        dao.onMessage(event => {
+            console.log(JSON.stringify(event));
+            switch (event.eventType) {
+                case EventType.JOIN:
                     console.log("Recieved Join Event");
 
-                    clients = clients.concat([event.clientId]);
-                }
-            });
+                    players = players.concat([{
+                        player: event.player,
+                        score: event.score
+                    }]);
+
+                    break;
+                case EventType.ROUND_START:
+                    started = true;
+                    topic = event.roundTopic;
+                    break;
+                case EventType.CONNECTION:
+                    started = event.gameState === GameState.PLAYING;
+                    topic = event.roundTopic === null ? '' : event.roundTopic;
+                    break;
+            }
         });
     });
+    joined = true;
+}
+
+const startGame = () => {
+    dao.startGame();
+};
 </script>
 
 <div>
-    <DrawingCanvas dao={dao}/>
-    <div class="row">
-        {#each clients as client}
-            <div class="col-sm">
-                <ListeningCanvas dao={dao} clientId={client}/>
-            </div>
-        {/each}
-    </div>
+    {#if joined}
+        {#if started}
+            <Game dao={dao} 
+                players={players} 
+                currentPlayer={currentPlayer}
+                topic={topic}/>
+        {:else}
+            <PlayersSideBar scores={[currentPlayer, ...players]}/>
+
+            <button on:click={startGame}>Start game</button>
+        {/if}
+    {:else}
+        <input bind:value={nickName}>
+        <button on:click={joinGame}>Join</button>
+    {/if}
 </div>
-
-
-

@@ -4,7 +4,7 @@
     import { Colour } from '../model/colour';
     import { Weight } from '../model/weight';
     import { v4 as uuidv4 } from 'uuid';
-    import type { SocketDao } from '../socketDao';
+    import type { SocketDao } from '../logic/socketDao';
     import { canvasSize } from '../model/canvasDimensions';
 
     const clientId = uuidv4();
@@ -130,37 +130,31 @@
 </script>
 
 <main>
+    <canvas
+        bind:this={canvas}
+        width={canvasSize}
+        height={canvasSize}>
+    </canvas>
     <div class="row">
-        <div class="col-xxl">
-            <canvas
-                bind:this={canvas}
-                width={canvasSize}
-                height={canvasSize}>
-            </canvas>
-        </div>
+        <div class="row row-cols-4">
 
-
-        <div class="col-2">
-            <div class="row row-cols-2">
-    
-                {#each Object.values(Colour) as colourOption}
-                    <div class="col">
-                        <button type="button" class="col btn colour-btn m-1 {colour === colourOption ? "selected-btn": ""}"
-                            style="background-color: {colourOption}"
-                            on:click={() => colour = colourOption}/>
-                    </div>
-                {/each}
-                
-                {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
-                    <div class="col">
-                        <button type="button" class="btn m-1 {strokeWidth === weight ? "selected-btn": ""}"
-                                    on:click={() => strokeWidth = weight}>{weight}</button>
-                    </div>
-                {/each}
+            {#each Object.values(Colour) as colourOption}
+                <div class="col">
+                    <button type="button" class="col btn colour-btn m-1 {colour === colourOption ? "selected-btn": ""}"
+                        style="background-color: {colourOption}"
+                        on:click={() => colour = colourOption}/>
+                </div>
+            {/each}
             
-                <button type="button m-1" class="col btn" 
-                    on:click={clearFunction}>Clear</button>
-            </div>
+            {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
+                <div class="col">
+                    <button type="button" class="btn m-1 {strokeWidth === weight ? "selected-btn": ""}"
+                                on:click={() => strokeWidth = weight}>{weight}</button>
+                </div>
+            {/each}
+        
+            <button type="button m-1" class="col btn" 
+                on:click={clearFunction}>Clear</button>
         </div>
     </div>
 </main>

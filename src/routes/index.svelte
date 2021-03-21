@@ -1,25 +1,18 @@
 <script lang="ts">
-	import DrawingCanvas from '../components/DrawingCanvas.svelte';
-	import ListeningCanvas from '../components/ListeningCanvas.svelte';
+	import { goto } from '@sapper/app';
+	import { gameIdCreator } from '../logic/gameIdCreator';
+
+	const redirectToNewGame = () => {
+		goto('game/' + gameIdCreator())
+	}
 </script>
 
 <main>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-	<DrawingCanvas/>
-	<ListeningCanvas/>
+	<div>
+		Start a new game?
+	</div>
+
+	<button class="btn btn-primary" on:click={redirectToNewGame}>
+		Start
+	</button>
 </main>
-
-<style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
-</style>
