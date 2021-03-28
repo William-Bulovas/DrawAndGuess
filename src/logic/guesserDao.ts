@@ -1,4 +1,6 @@
 import * as tf from '@tensorflow/tfjs-node';
+import { Canvas, Image } from 'canvas';
+import PNG from 'png-ts';
 import { canvasSize } from '../model/canvasDimensions';
 import {topics} from './drawTopics';
 
@@ -9,15 +11,19 @@ function dataURItoBlob(dataURI) {
   
   }
 
-const formatData = (buffer: Buffer) => {
+const formatData = (buffer: Uint8ClampedArray) => {
     const output = [];
 
     console.log(buffer.length)
 
     let row = [];
-    for (let i = 0; i < canvasSize; i++) {
+    for (let i = 0; i < 784; i++) {
+        let data = 0;
+        if (buffer[i * 4] + buffer[i * 4 + 1] + buffer[i * 4 + 2]) {
+            data = 1;
+        }
 
-        row.push([(255 - buffer[i*4])/255])
+        row.push([data])
 
         if (row.length === 28) {
             output.push(row);
@@ -25,6 +31,7 @@ const formatData = (buffer: Buffer) => {
             row = [];
         }
     }
+
 
     return [output];
 };
@@ -34,9 +41,27 @@ export class GuesserDao {
         private model: tf.LayersModel,
     ) {}
 
-    guess(image: string) {
-        const buffer = Buffer.from(image.split(',')[1], 'base64');
-        const imageTensor = tf.tensor(formatData(buffer));
+    async guess(imageDataURL: string) {
+        const canvas = new Canvas(28, 28);
+        const context = canvas.getContext('2d');
+        const loadPromise = new Promise<void>(resolve => {
+            const image = new Image();
+
+            image.onload = () => {
+                context.drawImage(image, 0, 0, 28, 28);
+                resolve();
+            }
+
+            image.src = imageDataURL;
+        });
+
+        await Promise.resolve(loadPromise);
+
+        const data = context.getImageData(0,0,28,28);
+        console.log('pixel data = ' + data.height);
+        console.log('pixel data = ' + data.width);
+
+        const imageTensor = tf.tensor(formatData(data.data));
 
         const prediction = this.model.predict(imageTensor);
         let topPrediction: tf.Tensor<tf.Rank>;

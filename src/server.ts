@@ -30,7 +30,7 @@ app.get('/', (req, res, next) => {
 wss.on('connection', (ws, req) => {
 	console.log("Connecting");
 
-	ws.onmessage = (rawEvent) => {
+	ws.onmessage = async (rawEvent) => {
 		const event = JSON.parse(rawEvent.data.toString()) as GameEvent;
 		switch(event.eventType) {
 			case EventType.JOIN:
@@ -43,7 +43,7 @@ wss.on('connection', (ws, req) => {
 				gameDao.startRound(event.gameId);
 				break;
 			case EventType.GUESS:
-				const guess = guesserDao.guess(event.guess);
+				const guess = await guesserDao.guess(event.guess);
 				gameDao.guess(event.gameId, event.player, guess);
 				break;
 		}
