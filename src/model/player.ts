@@ -1,4 +1,4 @@
 export interface Player {
-    clientId: String;
-    nickName: String;
+    clientId: string;
+    nickName: string;
 }

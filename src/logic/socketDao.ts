@@ -8,7 +8,7 @@ export class SocketDao {
 
     constructor(
         private player: Player,
-        private gameId: String
+        private gameId: string
     ) {}
 
     connect(callback: () => void = () => {}): void {
@@ -37,6 +37,15 @@ export class SocketDao {
             gameId: this.gameId,
             player: this.player,
             data: drawEvent
+        }));
+    }
+
+    sendGuess(guess: string): void {
+        this.socket.send(JSON.stringify({
+            eventType: EventType.GUESS,
+            gameId: this.gameId,
+            player: this.player,
+            guess: guess
         }));
     }
 

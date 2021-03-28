@@ -8,10 +8,10 @@ import { GameState } from "../model/gameState";
 
 export class ConnectionDataStoreDao {
     constructor(
-        private activeConnections: Map<String, GameData> = new Map<String, GameData>(),
+        private activeConnections: Map<string, GameData> = new Map<string, GameData>(),
     ) {}
 
-    createNewGame(gameId: String): String {
+    createNewGame(gameId: string): string {
         this.activeConnections.set(gameId, {
             gameId: gameId,
             gameState: GameState.LOBBY,
@@ -21,11 +21,11 @@ export class ConnectionDataStoreDao {
         return gameId;
     };
 
-    getGameById(gameId: String): GameData {
+    getGameById(gameId: string): GameData {
         return this.activeConnections.get(gameId);
     };
 
-    addUserToGame(gameId: String, player: Player, connection: WebSocket) {
+    addUserToGame(gameId: string, player: Player, connection: WebSocket) {
         if (!this.activeConnections.has(gameId)) {
             this.createNewGame(gameId);
         }
@@ -76,7 +76,7 @@ export class ConnectionDataStoreDao {
         });
     };
 
-    startRound(gameId: String) {
+    startRound(gameId: string) {
         const game = this.getGameById(gameId);
 
         game.roundTopic = getRandomTopic();
@@ -91,5 +91,21 @@ export class ConnectionDataStoreDao {
         };
 
         this.broadcastEvent(startRoundEvent);
+    };
+
+    guess(gameId: string, player: Player, guess: string) {
+        const game = this.getGameById(gameId);
+
+        if (guess === game.roundTopic) {
+            
+        }
+
+        this.broadcastEvent({
+            eventType: EventType.GUESS,
+            gameId: gameId,
+            guess: guess,
+            player: player,
+            correct: guess === game.roundTopic
+        })
     };
 }

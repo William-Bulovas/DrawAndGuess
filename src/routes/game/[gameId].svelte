@@ -1,25 +1,23 @@
 <script lang="ts">
 import { SocketDao } from "../../logic/socketDao";
 import { v4 as uuidv4 } from 'uuid';
-import DrawingCanvas from "../../components/DrawingCanvas.svelte";
-import ListeningCanvas from "../../components/ListeningCanvas.svelte";
-import { onMount } from "svelte";
 import { EventType } from "../../model/eventType";
 import type { PlayerScore } from "../../model/playerScore";
 import PlayersSideBar from "../../components/PlayersSideBar.svelte";
 import Game from "../../components/Game.svelte";
 import { GameState } from "../../model/gameState";
-
+ 
 const clientId = uuidv4();
 
 let joined = false;
 let started = false;
 
 let dao: SocketDao = null;
-let gameId: String;
+let gameId: string;
 
 let nickName =  '';
-let topic: String = '';
+let topic: string = '';
+let gameBoard: Game;
 
 let currentPlayer: PlayerScore = {
         player: {
@@ -33,6 +31,7 @@ let players: PlayerScore[] = [];
 
 export async function preload({ params }) {
     const gameId = params.gameId;
+
     return { gameId };
 };
 
@@ -54,8 +53,6 @@ const joinGame = () => {
             console.log(JSON.stringify(event));
             switch (event.eventType) {
                 case EventType.JOIN:
-                    console.log("Recieved Join Event");
-
                     players = players.concat([{
                         player: event.player,
                         score: event.score
@@ -69,6 +66,12 @@ const joinGame = () => {
                 case EventType.CONNECTION:
                     started = event.gameState === GameState.PLAYING;
                     topic = event.roundTopic === null ? '' : event.roundTopic;
+                    break;
+                case EventType.GUESS:
+                    gameBoard.makeGuess({
+                        clientId: event.player.clientId,
+                        guess: event.guess
+                    })
                     break;
             }
         });
@@ -84,9 +87,10 @@ const startGame = () => {
 <div>
     {#if joined}
         {#if started}
-            <Game dao={dao} 
+            <Game bind:this={gameBoard} dao={dao} 
                 players={players} 
                 currentPlayer={currentPlayer}
+                clientId={clientId}
                 topic={topic}/>
         {:else}
             <PlayersSideBar scores={[currentPlayer, ...players]}/>

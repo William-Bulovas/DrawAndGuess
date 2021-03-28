@@ -3,9 +3,9 @@ import type { GameState } from './gameState';
 import type { Player } from './player';
 
 export interface GameData {
-    gameId: String;
+    gameId: string;
     gameState: GameState;
-    roundTopic?: String;
+    roundTopic?: string;
     users: {
         player: Player;
         score: Number;

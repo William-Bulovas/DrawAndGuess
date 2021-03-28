@@ -12,7 +12,7 @@ const GAME_ID = 'ABC123' as const;
 jest.mock('ws');
 jest.mock('./drawTopics');
 
-const mockGetRandomTopic = getRandomTopic as jest.MockedFunction<() => String>;
+const mockGetRandomTopic = getRandomTopic as jest.MockedFunction<() => string>;
 
 let dao: ConnectionDataStoreDao;
 

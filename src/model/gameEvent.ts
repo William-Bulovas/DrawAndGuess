@@ -5,11 +5,13 @@ import type { Player } from "./player";
 
 export interface GameEvent {
     eventType: EventType,
-    gameId: String,
+    gameId: string,
     player?: Player,
     data?: DrawEvent,
     score?: Number,
-    roundTopic?: String,
-    gameState?: GameState
+    roundTopic?: string,
+    gameState?: GameState,
+    guess?: string,
+    correct?: boolean
 }
 
