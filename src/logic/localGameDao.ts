@@ -5,32 +5,29 @@ import type { GameEvent } from "../model/gameEvent";
 import { EventType } from "../model/eventType";
 import { getRandomTopic } from "./drawTopics";
 import { GameState } from "../model/gameState";
+import type { GameDao } from "./gameDao";
 
-export class ConnectionDataStoreDao {
+export class LocalGameDao implements GameDao {
     constructor(
         private activeConnections: Map<string, GameData> = new Map<string, GameData>(),
     ) {}
 
-    createNewGame(gameId: string): string {
+    async createNewGame(gameId: string): Promise<string> {
         this.activeConnections.set(gameId, {
             gameId: gameId,
             gameState: GameState.LOBBY,
             users: []
         })
 
-        return gameId;
+        return new Promise(resolve => resolve(gameId));
     };
 
-    getGameById(gameId: string): GameData {
-        return this.activeConnections.get(gameId);
-    };
-
-    addUserToGame(gameId: string, player: Player, connection: WebSocket) {
+    async addUserToGame(gameId: string, player: Player, connection: WebSocket) {
         if (!this.activeConnections.has(gameId)) {
-            this.createNewGame(gameId);
+            await this.createNewGame(gameId);
         }
 
-        const game = this.getGameById(gameId);
+        const game = await this.getGameById(gameId);
 
         const joinEvent: GameEvent = {
             eventType: EventType.JOIN,
@@ -39,7 +36,7 @@ export class ConnectionDataStoreDao {
             score: 0
         };
 
-        this.broadcastEvent(joinEvent);
+        await this.broadcastEvent(joinEvent);
 
         connection.send(JSON.stringify({
             eventType: EventType.CONNECTION,
@@ -68,16 +65,16 @@ export class ConnectionDataStoreDao {
         this.activeConnections.set(gameId, game);
     };
 
-    broadcastEvent(event: GameEvent) {
-        const game = this.getGameById(event.gameId);
+    async broadcastEvent(event: GameEvent) {
+        const game = await this.getGameById(event.gameId);
 
         game.users.forEach(user => {
             user.connection.send(JSON.stringify(event));
         });
     };
 
-    startRound(gameId: string) {
-        const game = this.getGameById(gameId);
+    async startRound(gameId: string) {
+        const game = await this.getGameById(gameId);
 
         game.roundTopic = getRandomTopic();
         game.gameState = GameState.PLAYING;
@@ -90,22 +87,27 @@ export class ConnectionDataStoreDao {
             roundTopic: game.roundTopic
         };
 
-        this.broadcastEvent(startRoundEvent);
+        await this.broadcastEvent(startRoundEvent);
     };
 
-    guess(gameId: string, player: Player, guess: string) {
-        const game = this.getGameById(gameId);
+    async guess(gameId: string, player: Player, guess: string) {
+        const game = await this.getGameById(gameId);
 
         if (guess === game.roundTopic) {
             
         }
 
-        this.broadcastEvent({
+        await this.broadcastEvent({
             eventType: EventType.GUESS,
             gameId: gameId,
             guess: guess,
             player: player,
             correct: guess === game.roundTopic
         })
+    };
+
+    // For tests only
+    async getGameById(gameId: string): Promise<GameData> {
+        return new Promise(resolve => resolve(this.activeConnections.get(gameId)));
     };
 }

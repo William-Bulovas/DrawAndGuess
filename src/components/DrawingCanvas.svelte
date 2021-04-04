@@ -144,20 +144,20 @@ onMount(() => {
     <div class="row">
         <div class="row row-cols-4">
 
-            {#each Object.values(Colour) as colourOption}
-                <div class="col">
+            <div class="col">
+                {#each Object.values(Colour) as colourOption}
                     <button type="button" class="col btn colour-btn m-1 {colour === colourOption ? "selected-btn": ""}"
                         style="background-color: {colourOption}"
                         on:click={() => colour = colourOption}/>
-                </div>
-            {/each}
+                {/each}
+            </div>
             
-            {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
-                <div class="col">
-                    <button type="button" class="btn m-1 {strokeWidth === weight ? "selected-btn": ""}"
+            <div class="col">
+                {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
+                    <button type="button" class="btn bm-1 {strokeWidth === weight ? "selected-btn": ""}"
                                 on:click={() => strokeWidth = weight}>{weight}</button>
-                </div>
-            {/each}
+                {/each}
+            </div>
         
             <button type="button m-1" class="col btn" 
                 on:click={clearFunction}>Clear</button>

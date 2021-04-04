@@ -43,7 +43,7 @@ export const makeGuess = (guess: Guess) => {
         <h5 id="overlay" transition:fade>Is it....{currentGuess}?</h5>
     {/if}
     <div class="row">
-        <div class="col-xxl">
+        <div class="col">
             <DrawingCanvas dao={dao}/>
         </div>
         <div class="col">

@@ -1,20 +1,9 @@
-import * as tf from '@tensorflow/tfjs-node';
+import * as tf from '@tensorflow/tfjs';
 import { Canvas, Image } from 'canvas';
-import PNG from 'png-ts';
-import { canvasSize } from '../model/canvasDimensions';
 import {topics} from './drawTopics';
-
-function dataURItoBlob(dataURI) {
-    // convert base64 to raw binary data held in a string
-    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-    var byteString = Buffer.from(dataURI.split(',')[1]).toString('binary');
-  
-  }
 
 const formatData = (buffer: Uint8ClampedArray) => {
     const output = [];
-
-    console.log(buffer.length)
 
     let row = [];
     for (let i = 0; i < 784; i++) {
@@ -31,7 +20,6 @@ const formatData = (buffer: Uint8ClampedArray) => {
             row = [];
         }
     }
-
 
     return [output];
 };
@@ -58,8 +46,6 @@ export class GuesserDao {
         await Promise.resolve(loadPromise);
 
         const data = context.getImageData(0,0,28,28);
-        console.log('pixel data = ' + data.height);
-        console.log('pixel data = ' + data.width);
 
         const imageTensor = tf.tensor(formatData(data.data));
 
@@ -85,5 +71,6 @@ export class GuesserDao {
             });
         
         return topics[prob.index];
+        return  'rtemp'
     }
 }

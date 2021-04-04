@@ -1,4 +1,4 @@
-import { ConnectionDataStoreDao } from "./connectionDataStoreDao";
+import { LocalGameDao } from "./localGameDao";
 import { gameIdCreator } from './gameIdCreator';
 import WebSocket from 'ws';
 import type { Player } from "../model/player";
@@ -14,23 +14,23 @@ jest.mock('./drawTopics');
 
 const mockGetRandomTopic = getRandomTopic as jest.MockedFunction<() => string>;
 
-let dao: ConnectionDataStoreDao;
+let dao: LocalGameDao;
 
 beforeEach(() => {
-    dao = new ConnectionDataStoreDao();
+    dao = new LocalGameDao();
 });
 
 describe('createNewGame', () => {
-    it('it will create a game with the expected game ID', () => {
-        const createdGameId = dao.createNewGame(GAME_ID);
+    it('it will create a game with the expected game ID', async () => {
+        const createdGameId = await dao.createNewGame(GAME_ID);
 
         expect(createdGameId).toBe(GAME_ID);
     });
 
-    it('it will create an entry into the dataStore', () => {
+    it('it will create an entry into the dataStore', async () => {
         dao.createNewGame(GAME_ID);
 
-        const game = dao.getGameById(GAME_ID);
+        const game = await dao.getGameById(GAME_ID);
         
         expect(game).not.toBeNull();
         expect(game.gameId).toBe(GAME_ID);
@@ -48,14 +48,14 @@ describe('addUserToGame', () => {
     const mockWebSocket = new WebSocket('');
 
     describe('when the game has already been created', () => {
-        beforeEach(() => {
-            dao.createNewGame(GAME_ID);
+        beforeEach(async () => {
+            await dao.createNewGame(GAME_ID);
         });
         
-        it('adds a user to the game with the default values', () => {
-            dao.addUserToGame(GAME_ID, newPlayer, mockWebSocket);
+        it('adds a user to the game with the default values', async () => {
+            await dao.addUserToGame(GAME_ID, newPlayer, mockWebSocket);
             
-            const game = dao.getGameById(GAME_ID);
+            const game = await dao.getGameById(GAME_ID);
             
             expect(game).not.toBeNull();
             expect(game.users.length).toBe(1);
@@ -68,10 +68,10 @@ describe('addUserToGame', () => {
     });
 
     describe('when the game has not been created yet', () => {
-        it('creates a new game a user to the game with the default values', () => {
-            dao.addUserToGame(GAME_ID, newPlayer, mockWebSocket);
+        it('creates a new game a user to the game with the default values', async () => {
+            await dao.addUserToGame(GAME_ID, newPlayer, mockWebSocket);
             
-            const game = dao.getGameById(GAME_ID);
+            const game = await dao.getGameById(GAME_ID);
             
             expect(game).not.toBeNull();
             expect(game.users.length).toBe(1);
@@ -118,17 +118,17 @@ describe('addUserToGame', () => {
 
         const mockWebSocket = new WebSocket('');
 
-        beforeEach(() => {
-            dao.createNewGame(GAME_ID);
+        beforeEach(async () => {
+            await dao.createNewGame(GAME_ID);
 
-            dao.addUserToGame(GAME_ID, player1, mockPlayer1Connection);
-            dao.addUserToGame(GAME_ID, player2, mockPlayer2Connection);
+            await dao.addUserToGame(GAME_ID, player1, mockPlayer1Connection);
+            await dao.addUserToGame(GAME_ID, player2, mockPlayer2Connection);
         });
 
-        it('broadcasts the join event to everyone', () => {
-            dao.addUserToGame(GAME_ID, newPlayer, mockWebSocket);
+        it('broadcasts the join event to everyone', async () => {
+            await dao.addUserToGame(GAME_ID, newPlayer, mockWebSocket);
             
-            const game = dao.getGameById(GAME_ID);
+            const game = await dao.getGameById(GAME_ID);
             
             expect(game).not.toBeNull();
             expect(game.users.length).toBe(3);
@@ -173,15 +173,15 @@ describe('broadcastEvent', () => {
         score: 0
     } as const;    
 
-    beforeEach(() => {
-        dao.createNewGame(GAME_ID);
+    beforeEach(async () => {
+        await dao.createNewGame(GAME_ID);
 
-        dao.addUserToGame(GAME_ID, player1, mockPlayer1Connection);
-        dao.addUserToGame(GAME_ID, player2, mockPlayer2Connection);
+        await dao.addUserToGame(GAME_ID, player1, mockPlayer1Connection);
+        await dao.addUserToGame(GAME_ID, player2, mockPlayer2Connection);
     });
 
-    it('will send the event to each user in the game', () => {
-        dao.broadcastEvent(EVENT);
+    it('will send the event to each user in the game', async () => {
+        await dao.broadcastEvent(EVENT);
         
         expect(mockPlayer1Connection.send).toHaveBeenLastCalledWith(
             JSON.stringify(EVENT));
@@ -210,24 +210,24 @@ describe('startRound', () => {
         roundTopic: TOPIC
     } as const;    
 
-    beforeEach(() => {
+    beforeEach(async () => {
         mockGetRandomTopic.mockReturnValue(TOPIC);
 
-        dao.createNewGame(GAME_ID);
-        dao.addUserToGame(GAME_ID, player1, mockPlayer1Connection);
-        dao.addUserToGame(GAME_ID, player2, mockPlayer2Connection);
+        await dao.createNewGame(GAME_ID);
+        await dao.addUserToGame(GAME_ID, player1, mockPlayer1Connection);
+        await dao.addUserToGame(GAME_ID, player2, mockPlayer2Connection);
     });
 
-    it('will update the game with the new topic', () => {
-        dao.startRound(GAME_ID);
+    it('will update the game with the new topic', async () => {
+       await  dao.startRound(GAME_ID);
 
-        const game = dao.getGameById(GAME_ID);
+        const game = await dao.getGameById(GAME_ID);
 
         expect(game.roundTopic).toBe(TOPIC);
     });
 
-    it('will broadcast a start round event', () => {
-        dao.startRound(GAME_ID);
+    it('will broadcast a start round event', async () => {
+        await dao.startRound(GAME_ID);
 
         expect(mockPlayer1Connection.send).toHaveBeenLastCalledWith(
             JSON.stringify(EXPECTED_EVENT));
@@ -235,10 +235,10 @@ describe('startRound', () => {
             JSON.stringify(EXPECTED_EVENT));
     });
 
-    it('updates the game state', () => {
-        dao.startRound(GAME_ID);
+    it('updates the game state', async () => {
+        await dao.startRound(GAME_ID);
 
-        const game = dao.getGameById(GAME_ID);
+        const game = await dao.getGameById(GAME_ID);
 
         expect(game.gameState).toBe(GameState.PLAYING);
     });

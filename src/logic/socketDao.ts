@@ -12,7 +12,7 @@ export class SocketDao {
     ) {}
 
     connect(callback: () => void = () => {}): void {
-        this.socket = new WebSocket('ws://localhost:3000');
+        this.socket = new WebSocket('ws://localhost:49161');
         this.socket.onopen = callback;
     }
 
@@ -51,6 +51,7 @@ export class SocketDao {
 
     onMessage(func: (d: GameEvent) => void): void {
         this.socket.addEventListener("message", event => {
+            console.log(event)
             func(JSON.parse(event.data) as GameEvent);
         });
     }

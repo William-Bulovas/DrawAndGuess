@@ -1,3 +1,13 @@
+<script lang="ts" context="module">
+export async function preload({ params }) {
+    const gameId = params.gameId;
+
+    console.log("here, gamedId = " + gameId)
+
+    return { gameId };
+};
+</script>
+
 <script lang="ts">
 import { SocketDao } from "../../logic/socketDao";
 import { v4 as uuidv4 } from 'uuid';
@@ -13,7 +23,7 @@ let joined = false;
 let started = false;
 
 let dao: SocketDao = null;
-let gameId: string;
+export let gameId: string;
 
 let nickName =  '';
 let topic: string = '';
@@ -29,11 +39,7 @@ let currentPlayer: PlayerScore = {
 
 let players: PlayerScore[] = [];
 
-export async function preload({ params }) {
-    const gameId = params.gameId;
-
-    return { gameId };
-};
+console.log('GameId = ' + gameId)
 
 const joinGame = () => {
     console.log(nickName);
@@ -44,6 +50,8 @@ const joinGame = () => {
         },
         score: 0
     };
+
+    console.log('GameId = ' + gameId)
 
     dao = new SocketDao(currentPlayer.player, gameId);
     dao.connect(() => {
