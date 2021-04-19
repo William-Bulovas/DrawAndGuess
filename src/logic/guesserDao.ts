@@ -30,24 +30,24 @@ export class GuesserDao {
     ) {}
 
     async guess(imageDataURL: string) {
-        const canvas = new Canvas(28, 28);
-        const context = canvas.getContext('2d');
-        const loadPromise = new Promise<void>(resolve => {
-            const image = new Image();
+        // const canvas = new Canvas(28, 28);
+        // const context = canvas.getContext('2d');
+        // const loadPromise = new Promise<void>(resolve => {
+        //     const image = new Image();
 
-            image.onload = () => {
-                context.drawImage(image, 0, 0, 28, 28);
-                resolve();
-            }
+        //     image.onload = () => {
+        //         context.drawImage(image, 0, 0, 28, 28);
+        //         resolve();
+        //     }
 
-            image.src = imageDataURL;
-        });
+        //     image.src = imageDataURL;
+        // });
 
-        await Promise.resolve(loadPromise);
+        // await Promise.resolve(loadPromise);
 
-        const data = context.getImageData(0,0,28,28);
+        // const data = context.getImageData(0,0,28,28);
 
-        const imageTensor = tf.tensor(formatData(data.data));
+        const imageTensor = tf.tensor([[[0],[1]],[[0],[1]]]);
 
         const prediction = this.model.predict(imageTensor);
         let topPrediction: tf.Tensor<tf.Rank>;
@@ -71,6 +71,6 @@ export class GuesserDao {
             });
         
         return topics[prob.index];
-        return  'rtemp'
+        // return 'temp';
     }
 }

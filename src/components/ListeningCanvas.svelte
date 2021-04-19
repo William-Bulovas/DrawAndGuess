@@ -29,54 +29,16 @@ let canvas: HTMLCanvasElement;
 const halfSize = canvasSize / scale / 2;
 
 onMount(() => {
-    let latestPoint: [number, number];
-    let drawing = false;
-
     const context = canvas.getContext("2d");
 
-    const continueStroke = (event: DrawEvent) => {
-        context.beginPath();
-        context.moveTo(latestPoint[0] / listeningScale,
-            latestPoint[1] / listeningScale);
-        context.strokeStyle = event.metaData.colour;
-        context.lineWidth = event.metaData.thickness / scale;
-        context.lineCap = "round";
-        context.lineJoin = "round";
-        context.lineTo(event.metaData.x / listeningScale, 
-            event.metaData.y / listeningScale);
-        context.stroke();
+    const draw = (imageUrl: string) => {
+        const image = new Image();
 
-        latestPoint = [event.metaData.x, event.metaData.y];
-    };
-
-    const startStroke = (point: [number, number]) => {
-        drawing = true;
-        latestPoint = point;
-    };
-
-    const mouseMove = (evt: DrawEvent) => {
-        if (!drawing) {
-            return;
+        image.onload = () => {
+            context.drawImage(image, 0, 0, canvasSize / listeningScale, canvasSize / listeningScale);
         }
-        continueStroke(evt);
-    };
 
-    const mouseDown = (evt: DrawEvent) => {
-        if (drawing) {
-            return;
-        }
-        startStroke([evt.metaData.x, evt.metaData.y]);
-    };
-
-    const mouseEnter = (evt: DrawEvent) => {
-        mouseDown(evt);
-    };
-
-    const endStroke = (evt: DrawEvent) => {
-        if (!drawing) {
-            return;
-        }
-        drawing = false;
+        image.src = imageUrl;
     };
 
     const clearFunction = () => {
@@ -95,20 +57,8 @@ onMount(() => {
             case Action.CLEAR:
                 clearFunction();
                 break;
-            case Action.MOUSE_DOWN:
-                mouseDown(drawEvent);
-                break;
-            case Action.MOUSE_ENTER:
-                mouseEnter(drawEvent);
-                break;
-            case Action.MOUSE_EXIT:
-                endStroke(drawEvent);
-                break;
-            case Action.MOUSE_MOVE:
-                mouseMove(drawEvent);
-                break;
-            case Action.MOUSE_UP:
-                endStroke(drawEvent);
+            case Action.DRAW:
+                draw(drawEvent.image);
                 break;
         }
     });

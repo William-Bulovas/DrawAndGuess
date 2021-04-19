@@ -16,6 +16,7 @@ let strokeWidth = Weight.MEDIUM;
 let canvas: HTMLCanvasElement;
 let clearFunction: () => void;
 let guessFunction: () => void;
+let changed = false;
 
 onMount(() => {
     let latestPoint: [number, number];
@@ -34,6 +35,7 @@ onMount(() => {
         context.stroke();
 
         latestPoint = point;
+        changed = true;
     };
 
     const startStroke = (point: [number, number]) => {
@@ -49,16 +51,6 @@ onMount(() => {
             return;
         }
         continueStroke([evt.offsetX, evt.offsetY]);
-
-        dao.sendDrawMessage({
-            action: Action.MOUSE_MOVE,
-            metaData: {
-                x: evt.offsetX,
-                y: evt.offsetY,
-                colour: colour,
-                thickness: strokeWidth
-            }
-        });
     };
 
     const mouseDown = (evt: MouseEvent) => {
@@ -68,16 +60,6 @@ onMount(() => {
         evt.preventDefault();
         canvas.addEventListener("mousemove", mouseMove, false);
         startStroke([evt.offsetX, evt.offsetY]);
-
-        dao.sendDrawMessage({
-            action: Action.MOUSE_DOWN,
-            metaData: {
-                x: evt.offsetX,
-                y: evt.offsetY,
-                colour: colour,
-                thickness: strokeWidth
-            }
-        });
     };
 
     const mouseEnter = (evt: MouseEvent) => {
@@ -85,16 +67,6 @@ onMount(() => {
             return;
         }
         mouseDown(evt);
-
-        dao.sendDrawMessage({
-            action: Action.MOUSE_ENTER,
-            metaData: {
-                x: evt.offsetX,
-                y: evt.offsetY,
-                colour: colour,
-                thickness: strokeWidth
-            }
-        });
     };
 
     const endStroke = (evt: MouseEvent) => {
@@ -103,16 +75,6 @@ onMount(() => {
         }
         drawing = false;
         evt.currentTarget.removeEventListener("mousemove", mouseMove, false);
-
-        dao.sendDrawMessage({
-            action: Action.MOUSE_EXIT,
-            metaData: {
-                x: evt.offsetX,
-                y: evt.offsetY,
-                colour: colour,
-                thickness: strokeWidth
-            }
-        });
     };
 
     clearFunction = () => {
@@ -131,6 +93,17 @@ onMount(() => {
     canvas.addEventListener("mouseup", endStroke, false);
     canvas.addEventListener("mouseout", endStroke, false);
     canvas.addEventListener("mouseenter", mouseEnter, false);
+
+    setInterval(() => {
+        if (changed) {
+            dao.sendDrawMessage({
+                action: Action.DRAW,
+                image: canvas.toDataURL()
+            });
+
+            changed = false;
+        }
+    }, 200);
 });
 
 </script>

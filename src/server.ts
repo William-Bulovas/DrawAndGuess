@@ -8,8 +8,8 @@ import { EventType } from "./model/eventType";
 import * as WebSocket from 'ws';
 import * as http from 'http';
 import { LocalGameDao } from './logic/localGameDao';
-import { GuesserDao } from './logic/guesserDao';
-import * as tf from '@tensorflow/tfjs-node';
+// import { GuesserDao } from './logic/guesserDao';
+// import * as tf from '@tensorflow/tfjs-node';
 
 const app = expressWebSocket(express()).app;
 const server = http.createServer(app);
@@ -17,7 +17,7 @@ const wss = new WebSocket.Server({ server });
 
 const gameDao = new LocalGameDao();
 
-let guesserDao: GuesserDao;
+// let guesserDao: GuesserDao;
 
 app.use(sapper.middleware());
 app.use(compression({ threshold: 0 }));
@@ -45,10 +45,10 @@ wss.on('connection', (ws, req) => {
 			case EventType.ROUND_START:
 				await gameDao.startRound(event.gameId);
 				break;
-			case EventType.GUESS:
-				const guess = await guesserDao.guess(event.guess);
-				await gameDao.guess(event.gameId, event.player, guess);
-				break;
+			// case EventType.GUESS:
+			// 	const guess = await guesserDao.guess(event.guess);
+			// 	await gameDao.guess(event.gameId, event.player, guess);
+			// 	break;
 		}
 	};
 
@@ -60,5 +60,5 @@ wss.on('connection', (ws, req) => {
 server.listen(3000, async () => {
 	console.log('started listening 3000');
 
-	guesserDao =  new GuesserDao(await tf.loadLayersModel('file://model/model.json'));
+	// guesserDao =  new GuesserDao(await tf.loadLayersModel('file://model/model.json'));
 });

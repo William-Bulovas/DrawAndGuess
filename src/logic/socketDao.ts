@@ -12,7 +12,8 @@ export class SocketDao {
     ) {}
 
     connect(callback: () => void = () => {}): void {
-        this.socket = new WebSocket('ws://localhost:49161');
+        this.socket = new WebSocket('wss://bfnh0zijm8.execute-api.us-west-2.amazonaws.com/dev');
+        //'wss://bfnh0zijm8.execute-api.us-west-2.amazonaws.com/dev'
         this.socket.onopen = callback;
     }
 

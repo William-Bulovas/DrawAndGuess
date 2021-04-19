@@ -18,15 +18,15 @@ export class BackEndStack extends cdk.Stack {
     });
 
     const connectionFn = new NodejsFunction(this, 'drawConnectFn', {
-        entry: path.join(__dirname, '../src/lambda/onConnect.ts'), // accepts .js, .jsx, .ts and .tsx files
+        entry: path.join(__dirname, '../src/lambda/onConnect.ts'),
         handler: 'handler'
       });
     const disconnectionFn = new NodejsFunction(this, 'drawDisconnectFn', {
-        entry: path.join(__dirname, '../src/lambda/onDisconnect.ts'), // accepts .js, .jsx, .ts and .tsx files
+        entry: path.join(__dirname, '../src/lambda/onDisconnect.ts'),
         handler: 'handler'
     });
     const defaultMessageFn = new NodejsFunction(this, 'drawMessageFn', {
-        entry: path.join(__dirname, '../src/lambda/onMessage.ts'), // accepts .js, .jsx, .ts and .tsx files
+        entry: path.join(__dirname, '../src/lambda/onMessage.ts'),
         handler: 'handler',
         bundling: {
             loader: {

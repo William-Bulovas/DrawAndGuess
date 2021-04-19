@@ -6,4 +6,5 @@ export enum Action {
     MOUSE_EXIT = "MOUSE_EXIT",
     MOUSE_MOVE = "MOUSE_MOVE",
     JOIN = "JOIN",
+    DRAW = "DRAW"
 }

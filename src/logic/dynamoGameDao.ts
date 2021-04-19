@@ -1,6 +1,7 @@
 import type { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import type { ApiGatewayManagementApi } from "aws-sdk";
 import { EventType } from "../model/eventType";
+import type { GameDataDynamoCache } from "../model/gameDataDynamoCache";
 import type { GameEvent } from "../model/gameEvent";
 import type { GameMetaData } from "../model/gameMetaData";
 import { GameState } from "../model/gameState";
@@ -13,6 +14,9 @@ export class DynamoGameDao implements GameDao {
     readonly TABLE_NAME = 'DrawTable' as const;
     readonly GAME_SK = 'GAME' as const;
     readonly PLAYER_SK = 'PLAYER' as const;
+
+    readonly gameDataCache: Map<string, GameMetaData> = new Map<string, GameMetaData>();
+    readonly usersCache: Map<string, PlayerConnection[]> = new Map<string, PlayerConnection[]>();
 
     constructor(
         private dynamo: DynamoDBDocument,
@@ -29,7 +33,12 @@ export class DynamoGameDao implements GameDao {
                 gameId: gameId,
                 gameState: GameState.LOBBY
             }
-        })
+        });
+
+        this.gameDataCache.set(gameId, {
+            gameId: gameId,
+            gameState: GameState.LOBBY,
+        });
 
         return gameId;
     };
@@ -68,11 +77,9 @@ export class DynamoGameDao implements GameDao {
                 clientId: player.clientId,
                 nickName: player.nickName                        
             }
-        })
-
+        });
 
         await this.broadcastToPlayers(JSON.stringify(joinEvent), users);
-
 
         console.log('Broadcasted to other players, going to update connection')
 
@@ -101,6 +108,14 @@ export class DynamoGameDao implements GameDao {
                 Data: JSON.stringify(userJoinEvent)
             }).promise();
         }));
+
+
+        this.usersCache.set(gameId, [...users, {
+            connectionId: connection,
+            score: 0,
+            clientId: player.clientId,
+            nickName: player.nickName                        
+        }]);
     };
 
     async broadcastEvent(event: GameEvent) {
@@ -115,6 +130,8 @@ export class DynamoGameDao implements GameDao {
     async startRound(gameId: string) {
         const game = await this.getGameMetaData(gameId);
 
+        const topic = getRandomTopic();
+
         console.log('Going to change round state')
         await this.dynamo.put({
             TableName: this.TABLE_NAME,
@@ -123,14 +140,19 @@ export class DynamoGameDao implements GameDao {
                 sk: this.GAME_SK,
                 gameId: gameId,
                 gameState: GameState.PLAYING,
-                roundTopic: getRandomTopic()
+                roundTopic: topic
             }
-        })
+        });
+
+        this.gameDataCache.set(gameId, {
+            roundTopic: topic,
+            ...this.gameDataCache.get(gameId)
+        });
 
         const startRoundEvent = {
             eventType: EventType.ROUND_START,
             gameId: gameId,
-            roundTopic: game.roundTopic
+            roundTopic: topic
         };
 
         await this.broadcastEvent(startRoundEvent);
@@ -154,6 +176,13 @@ export class DynamoGameDao implements GameDao {
     };
 
     private async getPlayersForGame(gameId: string): Promise<PlayerConnection[]> {
+        if (this.usersCache.has(gameId)) {
+            console.log('Cache hit returning player info from cache');
+            return this.usersCache.get(gameId);
+        }
+
+        console.log('Querying dynamo for players');
+
         const usersItems = await this.dynamo.query({
             TableName: this.TABLE_NAME,
             KeyConditionExpression: 'pk = :k and begins_with(sk, :prefix)',
@@ -164,11 +193,15 @@ export class DynamoGameDao implements GameDao {
         });
         console.log(JSON.stringify(usersItems));
 
-
         return usersItems.Items as PlayerConnection[];
     }
 
     private async getGameMetaData(gameId: string): Promise<GameMetaData> {
+        if (this.gameDataCache.has(gameId)) {
+            console.log('Cache hit returning gameMetaData from cache');
+            return this.gameDataCache.get(gameId);
+        }
+
         console.log('Going to call dynamo');
         const item = await this.dynamo.get({
             TableName: this.TABLE_NAME,
@@ -178,9 +211,11 @@ export class DynamoGameDao implements GameDao {
             }
         });
 
-        console.log(JSON.stringify(item));
+        const metaData = item.Item as GameMetaData;
 
-        return item.Item as GameMetaData;
+        this.gameDataCache.set(gameId, metaData);
+
+        return metaData;
     }
 
     private async broadcastToPlayers(event: string, players: PlayerConnection[]) {
