@@ -119,12 +119,8 @@ export class DynamoGameDao implements GameDao {
     };
 
     async broadcastEvent(event: GameEvent) {
-        console.time("dbread");
         const users = await this.getPlayersForGame(event.gameId);
-        console.timeEnd("dbread");
-        console.time("broadcast");
         await this.broadcastToPlayers(JSON.stringify(event), users);
-        console.timeEnd("broadcast");
     };
 
     async startRound(gameId: string) {
@@ -146,7 +142,8 @@ export class DynamoGameDao implements GameDao {
 
         this.gameDataCache.set(gameId, {
             roundTopic: topic,
-            ...this.gameDataCache.get(gameId)
+            gameState: GameState.PLAYING,
+            ...game
         });
 
         const startRoundEvent = {
@@ -166,7 +163,7 @@ export class DynamoGameDao implements GameDao {
 
         }
 
-        this.broadcastEvent({
+        await this.broadcastEvent({
             eventType: EventType.GUESS,
             gameId: gameId,
             guess: guess,
@@ -199,6 +196,7 @@ export class DynamoGameDao implements GameDao {
     private async getGameMetaData(gameId: string): Promise<GameMetaData> {
         if (this.gameDataCache.has(gameId)) {
             console.log('Cache hit returning gameMetaData from cache');
+            console.log(`Cache hit = ${JSON.stringify(this.gameDataCache.get(gameId))}`)
             return this.gameDataCache.get(gameId);
         }
 

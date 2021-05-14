@@ -46,7 +46,8 @@ export class SocketDao {
             eventType: EventType.GUESS,
             gameId: this.gameId,
             player: this.player,
-            guess: guess
+            guess: guess,
+            type: "guess"
         }));
     }
 

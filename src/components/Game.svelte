@@ -13,6 +13,7 @@ export let currentPlayer: PlayerScore;
 export let players: PlayerScore[];
 export let topic: string;
 export let clientId: string;
+export let started: boolean;
 
 let listeners:{ [clientId: string] : ListeningCanvas } = {};
 let showGuess = false;
@@ -36,7 +37,7 @@ export const makeGuess = (guess: Guess) => {
 
 </script>
 
-<main>
+<main class={started ? "" : "d-none"}>
     <h3>Draw a {topic}!</h3>
 
     {#if showGuess}

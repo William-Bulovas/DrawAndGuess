@@ -60,5 +60,6 @@ wss.on('connection', (ws, req) => {
 server.listen(3000, async () => {
 	console.log('started listening 3000');
 
-	// guesserDao =  new GuesserDao(await tf.loadLayersModel('file://model/model.json'));
+    // guesserDao =  new GuesserDao();
+    // await guesserDao.loadModel(tf.loadLayersModel('file://model/model.json'));
 });

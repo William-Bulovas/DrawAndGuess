@@ -1,9 +1,9 @@
 {
-		"extends": "@tsconfig/svelte/tsconfig.json",
-		"compilerOptions": {
-			"lib": ["DOM", "ES2017", "WebWorker"],
-			"types": ["jest", "node"]
-		},
-		"include": ["src/**/*", "src/node_modules/**/*", "src/lambda/onDisconnect.ts", "src/lsrc/lambda/onMessage.tsect.ts", "src/lambda/onMessage.ts", "src/lambda/onConnect.ts"],
-		"exclude": ["node_modules/*", "__sapper__/*", "static/*"]
+	"extends": "@tsconfig/svelte/tsconfig.json",
+	"compilerOptions": {
+		"lib": ["DOM", "ES2017", "WebWorker"],
+		"types": ["jest", "node"]
+	},
+	"include": ["src/**/*", "src/node_modules/**/*", "src/lambda/onDisconnect.ts", "src/lsrc/lambda/onMessage.tsect.ts", "src/lambda/onMessage.ts", "src/lambda/onConnect.ts", "onGuess.ts"],
+	"exclude": ["node_modules/*", "__sapper__/*", "static/*"]
 }

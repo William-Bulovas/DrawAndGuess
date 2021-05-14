@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "sapper dev",
     "build": "sapper build --legacy",
+    "ts-build": "tsc",
     "export": "sapper export --legacy",
     "start": "node __sapper__/build",
     "validate": "svelte-check --ignore src/node_modules/@sapper",
-    "test": "jest src"
+    "clean": "tsc --build --clean",
+    "test": "jest"
   },
   "dependencies": {
     "@aws-cdk/aws-ec2": "^1.96.0",
@@ -19,7 +21,7 @@
     "@aws-sdk/client-lambda": "^3.11.0",
     "@aws-sdk/lib-dynamodb": "^3.11.0",
     "@popperjs/core": "^2.9.2",
-    "@tensorflow/tfjs-node": "^3.4.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@types/express": "^4.17.11",
     "@types/express-ws": "^3.0.0",
     "@types/uuid": "^8.3.0",
@@ -27,7 +29,7 @@
     "@types/ws": "^7.4.0",
     "aws-sdk": "^2.879.0",
     "bootstrap": "^5.0.0-beta3",
-    "canvas": "^2.7.0",
+    "canvas": "2.6.1",
     "compression": "^1.7.1",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
@@ -59,6 +61,7 @@
     "@rollup/plugin-replace": "^2.4.2",
     "@rollup/plugin-typescript": "^6.0.0",
     "@rollup/plugin-url": "^5.0.0",
+    "@tensorflow/tfjs-node": "^3.6.1",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/svelte": "^3.0.3",
     "@tsconfig/svelte": "^1.0.10",

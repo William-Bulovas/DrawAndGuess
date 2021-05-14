@@ -38,13 +38,22 @@ export class BackEndStack extends cdk.Stack {
           NODE_OPTIONS: '--enable-source-maps'
         }
     });
+    const guesserMessageFn = new lambda.DockerImageFunction(this, 'guesserFn', {
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '..'))
+    });
 
     table.grantReadWriteData(defaultMessageFn);
+    table.grantReadWriteData(guesserMessageFn);
 
     const webSocketApi = new WebSocketApi(this, 'drawWebSocketApi', {
         connectRouteOptions: { integration: new LambdaWebSocketIntegration({ handler: connectionFn})},
         disconnectRouteOptions: { integration: new LambdaWebSocketIntegration({ handler: disconnectionFn})},
         defaultRouteOptions: { integration: new LambdaWebSocketIntegration({ handler: defaultMessageFn})},
+        routeSelectionExpression: '$request.body.eventType'
+    });
+
+    webSocketApi.addRoute('guess', {
+      integration: new LambdaWebSocketIntegration({ handler: guesserMessageFn })
     });
 
     new WebSocketStage(this, 'drawWebSocketApiStage', {

@@ -79,7 +79,7 @@ const joinGame = () => {
                     gameBoard.makeGuess({
                         clientId: event.player.clientId,
                         guess: event.guess
-                    })
+                    });
                     break;
             }
         });
@@ -93,14 +93,15 @@ const startGame = () => {
 </script>
 
 <div>
+    <Game bind:this={gameBoard} dao={dao} 
+        players={players} 
+        currentPlayer={currentPlayer}
+        clientId={clientId}
+        topic={topic}
+        started={started}/>
+
     {#if joined}
-        {#if started}
-            <Game bind:this={gameBoard} dao={dao} 
-                players={players} 
-                currentPlayer={currentPlayer}
-                clientId={clientId}
-                topic={topic}/>
-        {:else}
+        {#if !started}
             <PlayersSideBar scores={[currentPlayer, ...players]}/>
 
             <button on:click={startGame}>Start game</button>
