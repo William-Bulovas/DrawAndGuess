@@ -82,6 +82,7 @@ onMount(() => {
     canvas {
         border: solid;
         position: absolute;
+        background-color: white;
     }
 
     #overlay {

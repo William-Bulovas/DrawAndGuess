@@ -119,7 +119,7 @@ onMount(() => {
 
             <div class="col">
                 {#each Object.values(Colour) as colourOption}
-                    <button type="button" class="col btn colour-btn m-1 {colour === colourOption ? "selected-btn": ""}"
+                    <button type="button" class="draw-btn {colour === colourOption ? "selected-btn": ""}"
                         style="background-color: {colourOption}"
                         on:click={() => colour = colourOption}/>
                 {/each}
@@ -127,7 +127,7 @@ onMount(() => {
             
             <div class="col">
                 {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
-                    <button type="button" class="btn bm-1 {strokeWidth === weight ? "selected-btn": ""}"
+                    <button type="button" class="draw-btn {strokeWidth === weight ? "selected-btn": ""}"
                                 on:click={() => strokeWidth = weight}>{weight}</button>
                 {/each}
             </div>
@@ -140,18 +140,18 @@ onMount(() => {
     </div>
 </main>
 
-<style>
-    .colour-btn {
-        height: 40px;
-        width: 40px;
+<style style global lang="postcss">
+    .draw-btn {
+        @apply w-12 h-12 rounded-lg shadow-md outline-none focus:outline-none
     }
 
     .selected-btn {
         border: solid;
-        border-color: greenyellow;
+        border-color: var(--secondary);
     }
 
     canvas {
         border: solid;
+        background-color: white;
     }
 </style>

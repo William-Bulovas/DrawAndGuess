@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '@sapper/app';
+	import { goto } from '$app/navigation';
 	import { gameIdCreator } from '../logic/gameIdCreator';
 
 	const redirectToNewGame = () => {
@@ -7,12 +7,12 @@
 	}
 </script>
 
-<main>
+<div>
 	<div>
 		Start a new game?
 	</div>
 
-	<button class="btn btn-primary" on:click={redirectToNewGame}>
+	<button class="menuBtn" on:click={redirectToNewGame}>
 		Start
 	</button>
-</main>
+</div>

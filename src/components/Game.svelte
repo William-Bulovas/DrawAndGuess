@@ -38,7 +38,7 @@ export const makeGuess = (guess: Guess) => {
 </script>
 
 <main class={started ? "" : "d-none"}>
-    <h3>Draw a {topic}!</h3>
+    <h2>Draw a {topic}!</h2>
 
     {#if showGuess}
         <h5 id="overlay" transition:fade>Is it....{currentGuess}?</h5>

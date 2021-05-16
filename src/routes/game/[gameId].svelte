@@ -1,10 +1,15 @@
 <script lang="ts" context="module">
-export async function preload({ params }) {
-    const gameId = params.gameId;
+/**
+ * @type {import('@sveltejs/kit').Load}
+ */
+export async function load({ page, fetch, session, context }) {  
+    const gameId = page.params.gameId;
 
     console.log("here, gamedId = " + gameId)
 
-    return { gameId };
+    return { props: {
+        gameId: gameId
+    }};
 };
 </script>
 
@@ -93,21 +98,21 @@ const startGame = () => {
 </script>
 
 <div>
-    <Game bind:this={gameBoard} dao={dao} 
-        players={players} 
-        currentPlayer={currentPlayer}
-        clientId={clientId}
-        topic={topic}
-        started={started}/>
-
     {#if joined}
         {#if !started}
             <PlayersSideBar scores={[currentPlayer, ...players]}/>
-
-            <button on:click={startGame}>Start game</button>
+            
+            <button class="menuBtn" on:click={startGame}>Start game</button>
+        {:else}
+            <Game bind:this={gameBoard} dao={dao} 
+                players={players} 
+                currentPlayer={currentPlayer}
+                clientId={clientId}
+                topic={topic}
+                started={started}/>
         {/if}
     {:else}
-        <input bind:value={nickName}>
-        <button on:click={joinGame}>Join</button>
+        <input class="px-4 py-3 leading-5 border rounded-md focus:outline-none focus:ring focus:border-blue-300" bind:value={nickName}>
+        <button class="menuBtn" on:click={joinGame}>Join</button>
     {/if}
 </div>

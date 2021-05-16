@@ -31,7 +31,7 @@ export class FrontEndStack extends cdk.Stack {
     });
 
     new BucketDeployment(this, 'DrawGuessDistribution', {
-      sources: [ Source.asset('./__sapper__/export') ],
+      sources: [ Source.asset('./build') ],
       destinationBucket: frontEndBucket,
       distribution
     });
