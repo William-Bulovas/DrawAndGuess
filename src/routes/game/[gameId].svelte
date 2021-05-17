@@ -20,12 +20,15 @@ import { EventType } from "../../model/eventType";
 import type { PlayerScore } from "../../model/playerScore";
 import PlayersSideBar from "../../components/PlayersSideBar.svelte";
 import Game from "../../components/Game.svelte";
+import LoadingButton from "../../components/LoadingButton.svelte";
 import { GameState } from "../../model/gameState";
  
 const clientId = uuidv4();
 
 let joined = false;
+let joining = false;
 let started = false;
+let starting = false;
 
 let dao: SocketDao = null;
 export let gameId: string;
@@ -56,6 +59,8 @@ const joinGame = () => {
         score: 0
     };
 
+    joining = true;
+
     console.log('GameId = ' + gameId)
 
     dao = new SocketDao(currentPlayer.player, gameId);
@@ -79,6 +84,7 @@ const joinGame = () => {
                 case EventType.CONNECTION:
                     started = event.gameState === GameState.PLAYING;
                     topic = event.roundTopic === null ? '' : event.roundTopic;
+                    joined = true;
                     break;
                 case EventType.GUESS:
                     gameBoard.makeGuess({
@@ -89,10 +95,11 @@ const joinGame = () => {
             }
         });
     });
-    joined = true;
 }
 
 const startGame = () => {
+    starting = true;
+
     dao.startGame();
 };
 </script>
@@ -101,8 +108,8 @@ const startGame = () => {
     {#if joined}
         {#if !started}
             <PlayersSideBar scores={[currentPlayer, ...players]}/>
-            
-            <button class="menuBtn" on:click={startGame}>Start game</button>
+
+            <LoadingButton onClick={startGame} loading={starting}>Start game</LoadingButton>
         {:else}
             <Game bind:this={gameBoard} dao={dao} 
                 players={players} 
@@ -113,6 +120,6 @@ const startGame = () => {
         {/if}
     {:else}
         <input class="px-4 py-3 leading-5 border rounded-md focus:outline-none focus:ring focus:border-blue-300" bind:value={nickName}>
-        <button class="menuBtn" on:click={joinGame}>Join</button>
+        <LoadingButton onClick={joinGame} loading={joining}>Join</LoadingButton>
     {/if}
 </div>

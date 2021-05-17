@@ -16,6 +16,7 @@ export let clientId: string;
 export let started: boolean;
 
 let listeners:{ [clientId: string] : ListeningCanvas } = {};
+let drawingCanvas: DrawingCanvas;
 let showGuess = false;
 let currentGuess = '';
 
@@ -27,6 +28,8 @@ export const makeGuess = (guess: Guess) => {
         showGuess = true;
 
         setTimeout(() => showGuess = false, 2000);
+
+        drawingCanvas.gotGuess();
 
         return;
     }
@@ -45,7 +48,7 @@ export const makeGuess = (guess: Guess) => {
     {/if}
     <div class="row">
         <div class="col">
-            <DrawingCanvas dao={dao}/>
+            <DrawingCanvas bind:this={drawingCanvas} dao={dao}/>
         </div>
         <div class="col">
             <PlayersSideBar scores={[currentPlayer, ...players]}/>

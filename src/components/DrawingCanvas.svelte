@@ -6,6 +6,7 @@ import { Weight } from '../model/weight';
 import { v4 as uuidv4 } from 'uuid';
 import type { SocketDao } from '../logic/socketDao';
 import { canvasSize } from '../model/canvasDimensions';
+import LoadingButton from "./LoadingButton.svelte";
 
 const clientId = uuidv4();
 
@@ -17,6 +18,7 @@ let canvas: HTMLCanvasElement;
 let clearFunction: () => void;
 let guessFunction: () => void;
 let changed = false;
+let guessing = false;
 
 onMount(() => {
     let latestPoint: [number, number];
@@ -87,6 +89,8 @@ onMount(() => {
 
     guessFunction = () => {
         dao.sendGuess(canvas.toDataURL());
+
+        guessing = true;
     }
 
     canvas.addEventListener("mousedown", mouseDown, false);
@@ -106,18 +110,22 @@ onMount(() => {
     }, 200);
 });
 
+export const gotGuess = () => {
+    guessing = false;
+}
+
 </script>
 
-<main>
+<main class="space-y-4">
     <canvas
         bind:this={canvas}
         width={canvasSize}
         height={canvasSize}>
     </canvas>
-    <div class="row">
-        <div class="row row-cols-4">
+    <div>
+        <div class="space-y-4">
 
-            <div class="col">
+            <div class="space-x-4">
                 {#each Object.values(Colour) as colourOption}
                     <button type="button" class="draw-btn {colour === colourOption ? "selected-btn": ""}"
                         style="background-color: {colourOption}"
@@ -125,17 +133,20 @@ onMount(() => {
                 {/each}
             </div>
             
-            <div class="col">
+            <div class="space-x-4">
                 {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
                     <button type="button" class="draw-btn {strokeWidth === weight ? "selected-btn": ""}"
                                 on:click={() => strokeWidth = weight}>{weight}</button>
                 {/each}
             </div>
-        
-            <button type="button m-1" class="col btn" 
-                on:click={clearFunction}>Clear</button>
-            <button type="button m-1" class="col btn" 
-                on:click={guessFunction}>Guess</button>
+
+            <div class="space-x-4">
+                <button class="menuBtn" on:click={clearFunction}>Clear</button>
+
+                <LoadingButton onClick={guessFunction} loading={guessing}>
+                    Guess
+                </LoadingButton>
+            </div>        
         </div>
     </div>
 </main>

@@ -28,7 +28,7 @@
 	@tailwind utilities;
 
 	.menuBtn {
-		@apply p-4 max-w-sm mx-auto bg-white rounded-md shadow-md flex items-center space-x-4 outline-none focus:outline-none focus:ring
+		@apply p-4 max-w-sm mx-auto bg-white rounded-md shadow-md items-center outline-none focus:outline-none focus:ring inline-flex
 	};
 </style>
 
