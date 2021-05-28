@@ -44,7 +44,7 @@ export class DynamoGameDao implements GameDao {
     };
 
     async addUserToGame(gameId: string, player: Player, connection: string) {
-        let game = await this.getGameMetaData(gameId);
+        let game = await this.getGameMetaDataNoCache(gameId);
         const users = await this.getPlayersForGame(gameId);
 
         if (game === undefined) {
@@ -124,7 +124,7 @@ export class DynamoGameDao implements GameDao {
     };
 
     async startRound(gameId: string) {
-        const game = await this.getGameMetaData(gameId);
+        const game = await this.getGameMetaDataNoCache(gameId);
 
         const topic = getRandomTopic();
 
@@ -200,6 +200,10 @@ export class DynamoGameDao implements GameDao {
             return this.gameDataCache.get(gameId);
         }
 
+        return await this.getGameMetaDataNoCache(gameId);
+    }
+
+    private async getGameMetaDataNoCache(gameId: string): Promise<GameMetaData> {
         console.log('Going to call dynamo');
         const item = await this.dynamo.get({
             TableName: this.TABLE_NAME,

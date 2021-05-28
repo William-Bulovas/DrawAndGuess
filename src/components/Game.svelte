@@ -54,12 +54,10 @@ export const makeGuess = (guess: Guess) => {
             <PlayersSideBar scores={[currentPlayer, ...players]}/>
         </div>
     </div>
-    <div class="row">
+    <div class="grid grid-cols-3 gap-4">
         {#each players as player}
-            <div class="col-sm">
-                <ListeningCanvas bind:this={listeners[player.player.clientId]} 
-                    dao={dao} player={player.player}/>
-            </div>
+            <ListeningCanvas bind:this={listeners[player.player.clientId]} 
+                dao={dao} player={player.player}/>
         {/each}
     </div>
 </main>

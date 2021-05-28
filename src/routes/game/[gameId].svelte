@@ -5,8 +5,6 @@
 export async function load({ page, fetch, session, context }) {  
     const gameId = page.params.gameId;
 
-    console.log("here, gamedId = " + gameId)
-
     return { props: {
         gameId: gameId
     }};
@@ -47,8 +45,6 @@ let currentPlayer: PlayerScore = {
 
 let players: PlayerScore[] = [];
 
-console.log('GameId = ' + gameId)
-
 const joinGame = () => {
     console.log(nickName);
     currentPlayer = {
@@ -60,8 +56,6 @@ const joinGame = () => {
     };
 
     joining = true;
-
-    console.log('GameId = ' + gameId)
 
     dao = new SocketDao(currentPlayer.player, gameId);
     dao.connect(() => {

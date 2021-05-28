@@ -1,16 +1,23 @@
-FROM amazon/aws-lambda-nodejs:14
+# Define custom function directory
+ARG FUNCTION_DIR="/function"
 
-# Create app directory
-WORKDIR /var/task
+FROM node:12-buster as build-image
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+# Include global arg in this stage of the build
+ARG FUNCTION_DIR
+
+# Install aws-lambda-cpp build dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    g++ \
+    make \
+    cmake \
+    unzip \
+    libcurl4-openssl-dev
+
+WORKDIR ${FUNCTION_DIR}
+
 COPY package*.json .
-
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
 
 COPY tsconfig-docker.json tsconfig.json
 
@@ -20,6 +27,21 @@ COPY src/logic src/logic
 COPY src/model src/model
 COPY model model
 
+RUN npm install
+
 RUN npm run ts-build
 
-CMD [ "src/lambda/onGuess.handler" ]
+# Grab a fresh slim copy of the image to reduce the final size
+FROM node:12-buster-slim
+
+# Include global arg in this stage of the build
+ARG FUNCTION_DIR
+
+# Set working directory to function root directory
+WORKDIR ${FUNCTION_DIR}
+
+# Copy in the built dependencies
+COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
+
+ENTRYPOINT ["/usr/local/bin/npx", "aws-lambda-ric"]
+CMD ["src/lambda/onGuess.handler"]
