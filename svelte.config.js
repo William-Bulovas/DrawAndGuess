@@ -18,8 +18,9 @@ const config = {
 			// default options are shown
 			pages: 'build',
 			assets: 'build',
-			fallback: null
-		})
+			fallback: '200.html'
+		}),
+		ssr: false
 	}
 };
 

@@ -25,7 +25,7 @@ export class FrontEndStack extends cdk.Stack {
         {
           errorCode: 403,
           responseCode: 200,
-          responsePagePath: '/index.html'
+          responsePagePath: '/200.html'
         }
       ]
     });
