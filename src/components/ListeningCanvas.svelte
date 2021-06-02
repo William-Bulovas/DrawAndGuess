@@ -65,7 +65,7 @@ onMount(() => {
 });
 </script>
 
-<main>
+<div>
     <h4>{player.nickName}</h4>
     <canvas
         bind:this={canvas}
@@ -76,7 +76,7 @@ onMount(() => {
     {#if showGuess}
         <h6 id="overlay" transition:fade>Is it....{currentGuess}?</h6>
     {/if}
-</main>
+</div>
 
 <style>
     canvas {

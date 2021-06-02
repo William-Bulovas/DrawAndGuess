@@ -40,17 +40,17 @@ export const makeGuess = (guess: Guess) => {
 
 </script>
 
-<main class={started ? "" : "d-none"}>
-    <h2>Draw a {topic}!</h2>
+<div class={started ? "mb-8" : "d-none mb-8"}>
+    <p class="text-3xl">Draw a {topic}!</p>
 
     {#if showGuess}
         <h5 id="overlay" transition:fade>Is it....{currentGuess}?</h5>
     {/if}
-    <div class="row">
-        <div class="col">
+    <div class="flex space-x-4 mt-6 mb-6">
+        <div class="flex-initial">
             <DrawingCanvas bind:this={drawingCanvas} dao={dao}/>
         </div>
-        <div class="col">
+        <div class="flex-initial">
             <PlayersSideBar scores={[currentPlayer, ...players]}/>
         </div>
     </div>
@@ -60,7 +60,7 @@ export const makeGuess = (guess: Guess) => {
                 dao={dao} player={player.player}/>
         {/each}
     </div>
-</main>
+</div>
 
 <style>
     #overlay {

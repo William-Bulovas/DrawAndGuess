@@ -5,13 +5,15 @@
 </script>
 
 <div>
-    <div class="row row-cols-2">
+    <div class="flex flex-col space-y-3">
     {#each scores as score}
-        <div class="col">
-            {score.player.nickName}
-        </div>
-        <div class="col">
-            {score.score}
+        <div class="flex justify-between">
+            <p class="flex mr-3 flex-initial text-xl">
+                {score.player.nickName}
+            </p>
+            <p class="flex flex-initial text-xl">
+                {score.score}
+            </p>
         </div>
     {/each}
     </div>

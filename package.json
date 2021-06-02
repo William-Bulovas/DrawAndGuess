@@ -2,6 +2,7 @@
   "name": "guess_draw",
   "description": "This is a game where you try to get an AI to guess your drawing ",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "dev": "svelte-kit dev",
     "ts-build": "tsc",

@@ -116,32 +116,30 @@ export const gotGuess = () => {
 
 </script>
 
-<main class="space-y-4">
-    <canvas
-        bind:this={canvas}
-        width={canvasSize}
-        height={canvasSize}>
-    </canvas>
-    <div>
-        <div class="space-y-4">
-
-            <div class="space-x-4">
-                {#each Object.values(Colour) as colourOption}
-                    <button type="button" class="draw-btn {colour === colourOption ? "selected-btn": ""}"
-                        style="background-color: {colourOption}"
-                        on:click={() => colour = colourOption}/>
-                {/each}
-            </div>
-            
-            <div class="space-x-4">
-                {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
-                    <button type="button" class="draw-btn {strokeWidth === weight ? "selected-btn": ""}"
-                                on:click={() => strokeWidth = weight}>{weight}</button>
-                {/each}
+<div class="flex space-x-4">
+    <div class="flex-initial mt-4">
+        <div class="flex flex-col space-y-4">
+            <div class="flex space-x-1">
+                <div class="flex flex-col space-y-2">
+                    {#each Object.values(Colour) as colourOption}
+                        <button type="button" class="draw-btn {colour === colourOption ? "selected-btn": ""}"
+                            style="background-color: {colourOption}"
+                            on:click={() => colour = colourOption}/>
+                    {/each}
+                </div>
+                
+                <div class="flex flex-col space-y-2">
+                    {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
+                        <button type="button" class="draw-btn {strokeWidth === weight ? "selected-btn": ""}"
+                                    on:click={() => strokeWidth = weight}>{weight}</button>
+                    {/each}
+                </div>
             </div>
 
-            <div class="space-x-4">
-                <button class="menuBtn" on:click={clearFunction}>Clear</button>
+            <div class="flex flex-col space-y-2">
+                <button class="menuBtn" on:click={clearFunction}>
+                    Clear
+                </button>
 
                 <LoadingButton onClick={guessFunction} loading={guessing}>
                     Guess
@@ -149,7 +147,13 @@ export const gotGuess = () => {
             </div>        
         </div>
     </div>
-</main>
+    <canvas
+        bind:this={canvas}
+        class="flex-initial"
+        width={canvasSize}
+        height={canvasSize}>
+    </canvas>
+</div>
 
 <style style global lang="postcss">
     .draw-btn {
