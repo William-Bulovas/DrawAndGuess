@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { gameIdCreator } from '../logic/gameIdCreator';
+import { goto } from '$app/navigation';
+import { gameIdCreator } from '../logic/gameIdCreator';
 
-	const redirectToNewGame = () => {
-		goto('game/' + gameIdCreator())
-	}
+const redirectToNewGame = () => {
+	goto('game/' + gameIdCreator())
+}
 </script>
 
 <div>

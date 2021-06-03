@@ -119,25 +119,23 @@ export const gotGuess = () => {
 <div class="flex space-x-4">
     <div class="flex-initial mt-4">
         <div class="flex flex-col space-y-4">
-            <div class="flex space-x-1">
-                <div class="flex flex-col space-y-2">
-                    {#each Object.values(Colour) as colourOption}
-                        <button type="button" class="draw-btn {colour === colourOption ? "selected-btn": ""}"
-                            style="background-color: {colourOption}"
-                            on:click={() => colour = colourOption}/>
-                    {/each}
-                </div>
-                
-                <div class="flex flex-col space-y-2">
-                    {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
-                        <button type="button" class="draw-btn {strokeWidth === weight ? "selected-btn": ""}"
-                                    on:click={() => strokeWidth = weight}>{weight}</button>
-                    {/each}
-                </div>
+            <div class="grid grid-cols-2 gap-1">
+                {#each Object.values(Colour) as colourOption}
+                    <button type="button" class="draw-btn {colour === colourOption ? "selected-btn": ""}"
+                        style="background-color: {colourOption}"
+                        on:click={() => colour = colourOption}/>
+                {/each}
+            </div>
+            
+            <div class="grid grid-cols-2 gap-1">
+                {#each [Weight.THIN, Weight.MEDIUM, Weight.THICK, Weight.THICKEST] as weight}
+                    <button type="button" class="draw-btn {strokeWidth === weight ? "selected-btn": ""}"
+                                on:click={() => strokeWidth = weight}>{weight}</button>
+                {/each}
             </div>
 
             <div class="flex flex-col space-y-2">
-                <button class="menuBtn" on:click={clearFunction}>
+                <button class="menuBtn w-28" on:click={clearFunction}>
                     Clear
                 </button>
 

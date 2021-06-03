@@ -83,7 +83,8 @@ const joinGame = () => {
                 case EventType.GUESS:
                     gameBoard.makeGuess({
                         clientId: event.player.clientId,
-                        guess: event.guess
+                        guess: event.guess,
+                        correct: event.correct
                     });
                     break;
             }

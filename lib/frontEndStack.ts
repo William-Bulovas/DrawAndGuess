@@ -33,7 +33,7 @@ export class FrontEndStack extends cdk.Stack {
     new BucketDeployment(this, 'DrawGuessDistribution', {
       sources: [ Source.asset('./build') ],
       destinationBucket: frontEndBucket,
-      distribution
+      distribution: distribution
     });
   }
 }

@@ -18,13 +18,13 @@ export let started: boolean;
 let listeners:{ [clientId: string] : ListeningCanvas } = {};
 let drawingCanvas: DrawingCanvas;
 let showGuess = false;
-let currentGuess = '';
+let currentGuess: Guess;
 
 export const makeGuess = (guess: Guess) => {
     console.log('got guess')
 
     if (clientId === guess.clientId) {
-        currentGuess = guess.guess;
+        currentGuess = guess;
         showGuess = true;
 
         setTimeout(() => showGuess = false, 2000);
@@ -35,17 +35,27 @@ export const makeGuess = (guess: Guess) => {
     }
     console.log('going to call listener')
 
-    listeners[guess.clientId].makeGuess(guess.guess);
+    listeners[guess.clientId].makeGuess(guess);
+}
+
+const guessLabel = () => {
+    if (currentGuess.correct) {
+        return `It's ${currentGuess.guess}!`;
+    } else {
+        return `Is it... ${currentGuess.guess}?`;
+    }
 }
 
 </script>
 
 <div class={started ? "mb-8" : "d-none mb-8"}>
-    <p class="text-3xl">Draw a {topic}!</p>
+    <p class="text-4xl">Draw a {topic}!</p>
 
-    {#if showGuess}
-        <h5 id="overlay" transition:fade>Is it....{currentGuess}?</h5>
-    {/if}
+    <div class="flex justify-center h-10">
+        {#if showGuess}
+            <p class="guessOverlay" transition:fade>{guessLabel()}</p>
+        {/if}
+    </div>
     <div class="flex space-x-4 mt-6 mb-6">
         <div class="flex-initial">
             <DrawingCanvas bind:this={drawingCanvas} dao={dao}/>
@@ -63,8 +73,7 @@ export const makeGuess = (guess: Guess) => {
 </div>
 
 <style>
-    #overlay {
-        position: absolute;
-        left: 300px;
+    .guessOverlay {
+        @apply text-lg
     }
 </style>

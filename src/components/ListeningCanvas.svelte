@@ -7,16 +7,17 @@ import { EventType } from '../model/eventType';
 import type { Player } from '../model/player';
 import type { SocketDao } from '../logic/socketDao';
 import { fade } from 'svelte/transition';
+import type { Guess } from '../model/guess';
 
 const scale = 2;
 
 export let dao: SocketDao;
 export let player: Player;
 
-let currentGuess: string = '';
+let currentGuess: Guess;
 let showGuess = false;
 
-export const makeGuess = (guess: string) => {
+export const makeGuess = (guess: Guess) => {
     currentGuess = guess;
 
     showGuess = true;
@@ -63,30 +64,40 @@ onMount(() => {
         }
     });
 });
+
+const guessLabel = () => {
+    if (currentGuess.correct) {
+        return `It's ${currentGuess.guess}!`;
+    } else {
+        return `Is it... ${currentGuess.guess}?`;
+    }
+}
+
 </script>
 
-<div>
-    <h4>{player.nickName}</h4>
+<div class="flex flex-col space-y-2">
+    <div class="flex justify-center">
+        <p class="text-md">{player.nickName}</p>
+    </div>
+
+    <div class="flex justify-center h-4">
+        {#if showGuess}
+            <p class="text-sm" transition:fade>{guessLabel()}</p>
+        {/if}
+    </div>
+
+
     <canvas
         bind:this={canvas}
         width={canvasSize / listeningScale}
         height={canvasSize / listeningScale}>
     </canvas>
 
-    {#if showGuess}
-        <h6 id="overlay" transition:fade>Is it....{currentGuess}?</h6>
-    {/if}
 </div>
 
 <style>
     canvas {
         border: solid;
         background-color: white;
-    }
-
-    #overlay {
-        position: absolute;
-        top: var(--halfSize);
-        left: 150px;
     }
 </style>
