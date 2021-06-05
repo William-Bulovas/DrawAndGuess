@@ -87,6 +87,30 @@ const joinGame = () => {
                         correct: event.correct
                     });
                     break;
+                case EventType.SCORE:
+                    players = players.map(p => {
+                        if (p.player.clientId === event.player.clientId) {
+                            return {
+                                player: event.player,
+                                score: event.score
+                            };
+                        }
+
+                        return p;
+                    });
+
+                    if (event.player.clientId === currentPlayer.player.clientId) {
+                        currentPlayer = {
+                            ...currentPlayer,
+                            score: event.score
+                        }
+                    }
+
+                    gameBoard.scoreUpdate({
+                        player: event.player,
+                        score: event.score
+                    });
+                    break;
             }
         });
     });

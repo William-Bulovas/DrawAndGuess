@@ -158,11 +158,6 @@ export class DynamoGameDao implements GameDao {
     async guess(gameId: string, player: Player, guess: string) {
         const game = await this.getGameMetaData(gameId);
 
-        if (guess === game.roundTopic) {
-            // TODO increment score
-
-        }
-
         await this.broadcastEvent({
             eventType: EventType.GUESS,
             gameId: gameId,
@@ -170,6 +165,42 @@ export class DynamoGameDao implements GameDao {
             player: player,
             correct: guess === game.roundTopic
         })
+
+        if (guess === game.roundTopic) {
+            const players = await this.getPlayersForGame(gameId);
+
+            const playerConnection = players.filter(p => p.clientId === player.clientId)[0];
+
+            const score = playerConnection.score + 50;
+
+            this.usersCache.set(gameId, players.map(p => {
+                if (p.clientId === player.clientId) {
+                    p.score + 50;
+                }
+
+                return p;
+            }));
+    
+            await this.dynamo.put({
+                TableName: this.TABLE_NAME,
+                Item: {
+                    pk: gameId,
+                    sk: this.PLAYER_SK + '#' + player.clientId,
+                    gameId: gameId,
+                    connectionId: playerConnection.connectionId,
+                    score: score,
+                    clientId: player.clientId,
+                    nickName: player.nickName                        
+                }
+            });    
+            
+            await this.broadcastEvent({
+                eventType: EventType.SCORE,
+                gameId: gameId,
+                player: player,
+                score: score
+            })    
+        }
     };
 
     private async getPlayersForGame(gameId: string): Promise<PlayerConnection[]> {

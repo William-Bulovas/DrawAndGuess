@@ -3,5 +3,6 @@ export enum EventType {
     DRAW = 'draw',
     ROUND_START = 'round_start',
     CONNECTION = 'connect',
-    GUESS = 'guess'
+    GUESS = 'guess',
+    SCORE = 'score'
 }

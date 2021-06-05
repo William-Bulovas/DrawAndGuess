@@ -86,13 +86,13 @@ const guessLabel = () => {
         {/if}
     </div>
 
-
-    <canvas
-        bind:this={canvas}
-        width={canvasSize / listeningScale}
-        height={canvasSize / listeningScale}>
-    </canvas>
-
+    <div class="flex justify-center">
+        <canvas
+            bind:this={canvas}
+            width={canvasSize / listeningScale}
+            height={canvasSize / listeningScale}>
+        </canvas>
+    </div>
 </div>
 
 <style>

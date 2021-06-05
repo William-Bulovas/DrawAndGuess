@@ -17,6 +17,7 @@ export let started: boolean;
 
 let listeners:{ [clientId: string] : ListeningCanvas } = {};
 let drawingCanvas: DrawingCanvas;
+let playersSideBar: PlayersSideBar;
 let showGuess = false;
 let currentGuess: Guess;
 
@@ -46,6 +47,10 @@ const guessLabel = () => {
     }
 }
 
+export const scoreUpdate = (playerScore: PlayerScore) => {
+    playersSideBar.updateScore(playerScore);
+}
+
 </script>
 
 <div class={started ? "mb-8" : "d-none mb-8"}>
@@ -61,7 +66,7 @@ const guessLabel = () => {
             <DrawingCanvas bind:this={drawingCanvas} dao={dao}/>
         </div>
         <div class="flex-initial">
-            <PlayersSideBar scores={[currentPlayer, ...players]}/>
+            <PlayersSideBar bind:this={playersSideBar} scores={[currentPlayer, ...players]}/>
         </div>
     </div>
     <div class="grid grid-cols-3 gap-4">
